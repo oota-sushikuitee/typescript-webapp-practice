@@ -1,59 +1,57 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+type FormData = {
+    name: string;
+    email: string;
+    message: string;
+};
 
 export default function ContactForm() {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        message: "",
-    });
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<FormData>();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Form submitted:", formData);
+    const onSubmit = (data: FormData) => {
+        console.log("Form submitted:", data);
         alert("Thank you for your message!");
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 shadow-md rounded-lg">
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg mx-auto bg-white p-6 shadow-md rounded-lg">
             <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
 
             <label className="block mb-2">
                 Name:
                 <input
                     type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    {...register("name", { required: "Name is required" })}
                     className="w-full p-2 border rounded-md"
-                    required
                 />
+                {errors.name && <p className="text-red-500">{errors.name.message}</p>}
             </label>
 
             <label className="block mb-2">
                 Email:
                 <input
                     type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    {...register("email", {
+                        required: "Email is required",
+                        pattern: { value: /^[^@]+@[^@]+\.[^@]+$/, message: "Invalid email format" },
+                    })}
                     className="w-full p-2 border rounded-md"
-                    required
                 />
+                {errors.email && <p className="text-red-500">{errors.email.message}</p>}
             </label>
 
             <label className="block mb-4">
                 Message:
                 <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
+                    {...register("message", { required: "Message is required" })}
                     className="w-full p-2 border rounded-md"
-                    required
                 />
+                {errors.message && <p className="text-red-500">{errors.message.message}</p>}
             </label>
 
             <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
